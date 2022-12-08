@@ -3,12 +3,12 @@ import java.io.IOException;
 public class GameSession extends Thread {
     private final Joueur player1;
     private final Joueur player2;
-    private String plateau;
+    private final Plateau plateau;
 
     public GameSession(Joueur player1, Joueur player2) {
         this.player1 = player1;
         this.player2 = player2;
-        plateau = "_|_|_|\n_|_|_|\n_|_|_|\n";
+        plateau = new Plateau();
         setDaemon(true);
     }
 
@@ -16,15 +16,18 @@ public class GameSession extends Thread {
     public void run() {
         super.run();
         System.out.println("deux joueurs jouent ensemble");
+        player1.setSymbole('X');
+        player2.setSymbole('O');
+
         Joueur currentPlayer = player1;
         try {
 
             player1.writeMessage("");
             String prefix = "le jeux commence\n";
             for (int i = 0; i < 5; i++) {
-                player1.writeMessage( prefix + plateau);
-                player2.writeMessage(prefix + plateau);
-                plateau += currentPlayer.readMessage();
+                player1.writeMessage( prefix + plateau.toString());
+                player2.writeMessage(prefix + plateau.toString());
+                plateau.takeCase(i+1, i+1, currentPlayer.getSymbole());
 
                 prefix = "\n";
                 if( currentPlayer == player1 )
