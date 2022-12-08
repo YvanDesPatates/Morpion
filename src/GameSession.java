@@ -25,9 +25,12 @@ public class GameSession extends Thread {
             player1.writeMessage("");
             String prefix = "le jeux commence\n";
             for (int i = 0; i < 5; i++) {
-                player1.writeMessage( prefix + plateau.toString());
-                player2.writeMessage(prefix + plateau.toString());
-                plateau.takeCase(i+1, i+1, currentPlayer.getSymbole());
+                player1.writeMessage( prefix + plateau);
+                player2.writeMessage(prefix + plateau);
+                String rep = currentPlayer.readMessage();
+                int x = Integer.parseInt(String.valueOf(rep.charAt(0)));
+                int y = Integer.parseInt(String.valueOf(rep.charAt(1)));
+                plateau.takeCase(x, y, currentPlayer.getSymbole());
 
                 prefix = "\n";
                 if( currentPlayer == player1 )

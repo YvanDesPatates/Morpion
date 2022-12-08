@@ -17,7 +17,7 @@ public class JoueurClient {
             for (int i = 0; i < 5; i++){
                 System.out.println(in.readUTF());
                 System.out.println(in.readUTF());
-                System.out.println("tapes la case à cocher");
+                System.out.println("tapes la case à cocher sous la forme xy (sans espace");
                 out.writeUTF(scanner.nextLine());
             }
         }
