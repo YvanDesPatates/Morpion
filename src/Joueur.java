@@ -8,6 +8,8 @@ public class Joueur {
     private final DataInputStream input;
     private final DataOutputStream output;
 
+    private char symbole;
+
     public Joueur(Socket client) throws IOException {
         socket = client;
         input = new DataInputStream(client.getInputStream());
@@ -21,5 +23,13 @@ public class Joueur {
 
     public void writeMessage(String message) throws IOException {
         output.writeUTF(message);
+    }
+
+    public char getSymbole() {
+        return symbole;
+    }
+
+    public void setSymbole(char symbole) {
+        this.symbole = symbole;
     }
 }
