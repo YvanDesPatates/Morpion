@@ -9,13 +9,28 @@ public class Plateau {
         tableau = Plateau.initialisation();
     }
 
-    public Plateau(char[][] table){
-        tableau=table;
-    }
-
-
+    /**
+     * @param x is the Horizontal coordinate
+     * @param y is the vertical coordinate
+     * @param symbole to fill the tableau with
+     */
     public void takeCase(int x, int y, char symbole){
         this.tableau[x-1][y-1]= symbole;
+    }
+
+    /**
+     * @param symbole : the symbol we will test the victory conditions on (exemple X)
+     * @return true if this symbole fullfeel the victory conditions, false otherwise
+     */
+    public boolean won(char symbole){
+
+    }
+
+    /**
+     * @return true if the tableau has at least one cell empty (without symbole)
+     */
+    public boolean isFull(){
+
     }
 
     @Override
