@@ -1,4 +1,3 @@
-import java.io.IOException;
 
 public class GameSession extends Thread {
     private final Joueur player1;
@@ -25,6 +24,7 @@ public class GameSession extends Thread {
             player1.writeMessage("");
             String prefix = "le jeux commence\n";
             for (int i = 0; i < 5; i++) {
+
                 player1.writeMessage( prefix + plateau);
                 player2.writeMessage(prefix + plateau);
                 String rep = currentPlayer.readMessage();
@@ -39,9 +39,11 @@ public class GameSession extends Thread {
                     currentPlayer = player1;
             }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.err.println("erreur lors d'envois de message : " + e.getMessage());
         }
+        player1.close();
+        player2.close();
     }
 
 }

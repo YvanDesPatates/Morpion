@@ -5,7 +5,7 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class JoueurClient {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args){
         Scanner scanner = new Scanner(System.in);
 
         DataInputStream in;
@@ -17,9 +17,11 @@ public class JoueurClient {
             for (int i = 0; i < 5; i++){
                 System.out.println(in.readUTF());
                 System.out.println(in.readUTF());
-                System.out.println("tapes la case à cocher sous la forme xy (sans espace");
+                System.out.println("tapes la case à cocher sous la forme xy (sans espaces)");
                 out.writeUTF(scanner.nextLine());
             }
+        } catch (IOException e){
+            System.out.println("votre adversaire s'est déconnecté ! relancez une partie");
         }
     }
 }

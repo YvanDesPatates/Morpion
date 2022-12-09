@@ -32,4 +32,12 @@ public class Joueur {
     public void setSymbole(char symbole) {
         this.symbole = symbole;
     }
+
+    public void close(){
+        try {
+            socket.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

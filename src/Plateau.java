@@ -44,17 +44,9 @@ public class Plateau {
         for (i = 0; i < tableau.length; i++) {
             for (j = 0; j < tableau[i].length; j++) {
                 tableau[i][j] = '_';
-                System.out.print(tableau[i][j] + " ");
             }
-            System.out.println();
-
         }
-        System.out.println();
-
-
-
         return tableau;
-
-
     }
+
 }
