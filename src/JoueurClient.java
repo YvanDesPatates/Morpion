@@ -67,7 +67,7 @@ public class JoueurClient {
         while (!valeurOk) {
             if (isIntable(rep)) {
                 int x = Integer.parseInt(rep);
-                if (x >= 1 && x <= 3) {
+                if (x >= 1 && x <= 4) {
                     valeurOk = true;
                 } else {
                     System.out.println("Erreur, merci de choisir un valeur entre 1 et 3 :");
