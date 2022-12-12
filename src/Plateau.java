@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 public class Plateau {
 
-    private char[][] tableau;
+    private final char[][] tableau;
 
     /**
      * créer et retourne un tableau initialisé
@@ -17,16 +17,12 @@ public class Plateau {
      * @param symbole to fill the tableau with
      */
     public void takeCase(int x, int y, char symbole){
-        this.tableau[x-1][y-1]= symbole;
-    }
-
-    public char getTableau(int x,int y) {
-        return this.tableau[x-1][y-1];
+        this.tableau[y-1][x-1]= symbole;
     }
 
     /**
-     * @param joueur : the joueur we will test the victory conditions on (exemple X)
-     * @return true if this symbole fullfeel the victory conditions, false otherwise
+     * @param joueur : the joueur we will test if he won the game or not
+     * @return true if this joueur fullfeel the victory conditions, false otherwise
      */
     public boolean isWinner(Joueur joueur){
 

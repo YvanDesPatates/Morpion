@@ -31,16 +31,7 @@ public class GameSession extends Thread {
                 player2.writeMessage(prefix + plateau);
                 prendreCase(currentPlayer);
 
-                if(plateau.isWinner(currentPlayer)){
-                    Joueur looser = currentPlayer == player1 ? player2 : player1;
-                    jeuxEnCours = false;
-                    currentPlayer.writeMessage("win");
-                    looser.writeMessage("loose");
-                } else if (plateau.isFull()){
-                    jeuxEnCours = false;
-                    player1.writeMessage("equality");
-                    player2.writeMessage("equality");
-                }
+                jeuxEnCours = noWinnerNorEquality(currentPlayer);
 
                 prefix = "\n";
                 if( currentPlayer == player1 )
@@ -48,12 +39,39 @@ public class GameSession extends Thread {
                 else
                     currentPlayer = player1;
             }
+            //quand le jeux est fini on envois une dernière fois la matrice
+            player1.writeMessage(plateau.toString());
+            player2.writeMessage(plateau.toString());
 
         } catch (Exception e) {
             System.err.println("erreur lors d'envois de message : " + e.getMessage());
         }
+        try {
+            sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         player1.close();
         player2.close();
+    }
+
+    /**
+     * @param currentPlayer the last plays which has play
+     * @return true if there is no winner and the Plateau is not full yet
+     */
+    private boolean noWinnerNorEquality(Joueur currentPlayer) throws IOException {
+        boolean res = true;
+        if(plateau.isWinner(currentPlayer)){
+            Joueur looser = currentPlayer == player1 ? player2 : player1;
+            res = false;
+            currentPlayer.writeMessage("win");
+            looser.writeMessage("loose");
+        } else if (plateau.isFull()){
+            res = false;
+            player1.writeMessage("equality");
+            player2.writeMessage("equality");
+        }
+        return res;
     }
 
     private void prendreCase(Joueur currentPlayer) throws IOException {

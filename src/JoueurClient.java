@@ -29,10 +29,11 @@ public class JoueurClient {
      */
     private static boolean recevoirMessage(DataInputStream in) throws IOException {
         String receivedMessage = in.readUTF();
+        String prefix = "\n\n\n\n\n\n\n\n";
         switch (receivedMessage) {
-            case "win" -> System.out.println("bravo vous avez gagné !!!");
-            case "loose" -> System.out.println("dommage vous ferez mieux la prochaine fois !\n (j'espère)");
-            case "equality" -> System.out.println("personne n'as gagné, tout le monde est content (?)");
+            case "win" -> System.out.println(prefix+"bravo vous avez gagné !!!");
+            case "loose" -> System.out.println(prefix+"dommage vous ferez mieux la prochaine fois !\n (j'espère)");
+            case "equality" -> System.out.println(prefix+"personne n'as gagné, tout le monde est content (?)");
             default -> {
                 System.out.println(receivedMessage);
                 return true;
@@ -45,9 +46,9 @@ public class JoueurClient {
     private static void envoyerValeur(DataOutputStream out, DataInputStream in) throws IOException {
         boolean valeurOk = false;
         while (!valeurOk) {
-            System.out.println("entrez le numéro de COLONNE -> choisi (de 1 à 3)");
+            System.out.println("entrez le numéro de COLONNE choisi (de 1 à 3)");
             String x = entrerValeur();
-            System.out.println("entrez le numéro de LIGNE î choisi (de 1 à 3)");
+            System.out.println("entrez le numéro de LIGNE choisi (de 1 à 3)");
             String y = entrerValeur();
             out.writeUTF(x);
             out.writeUTF(y);
