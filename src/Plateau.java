@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Plateau {
 
     private char[][] tableau;
@@ -18,11 +20,45 @@ public class Plateau {
         this.tableau[x-1][y-1]= symbole;
     }
 
+    public char getTableau(int x,int y) {
+        return this.tableau[x-1][y-1];
+    }
+
     /**
-     * @param symbole : the symbol we will test the victory conditions on (exemple X)
+     * @param joueur : the joueur we will test the victory conditions on (exemple X)
      * @return true if this symbole fullfeel the victory conditions, false otherwise
      */
-    public boolean won(char symbole){
+    public boolean isWinner(Joueur joueur){
+
+
+        ArrayList<String> listPositionGagnate = new ArrayList<>();
+        //diagonal 2
+        listPositionGagnate.add(this.tableau[0][0] +this.tableau[1][1] + this.tableau[2][2]+"");
+        listPositionGagnate.add(this.tableau[0][2] +this.tableau[1][1] + this.tableau[2][0]+"");
+        //colone 3
+        listPositionGagnate.add(this.tableau[0][0] +this.tableau[1][0] + this.tableau[2][0]+"");
+        listPositionGagnate.add(this.tableau[0][1] +this.tableau[1][1] + this.tableau[2][1]+"");
+        listPositionGagnate.add(this.tableau[0][2] +this.tableau[1][2] + this.tableau[2][2]+"");
+        //ligne 3
+        listPositionGagnate.add(this.tableau[0][0] +this.tableau[0][1] + this.tableau[0][2]+"");
+        listPositionGagnate.add(this.tableau[1][0] +this.tableau[1][1] + this.tableau[1][2]+"");
+        listPositionGagnate.add(this.tableau[2][0] +this.tableau[2][1] + this.tableau[2][2]+"");
+
+        String resultat = joueur.getSymbole()+joueur.getSymbole()+joueur.getSymbole()+"";
+
+        boolean gagnant = false;
+
+        for (String cas: listPositionGagnate) {
+            if(cas.equals(resultat)){
+                System.out.println(joueur.getSymbole() + " gagne la partie ");
+                gagnant = true;
+            }
+
+        }
+
+
+
+        return gagnant;
 
     }
 
@@ -30,7 +66,17 @@ public class Plateau {
      * @return true if the tableau has at least one cell empty (without symbole)
      */
     public boolean isFull(){
+        int i, j;
+        boolean isFull = true;
+        for (i = 0;i < tableau.length; i++) {
+            for (j = 0;j < tableau[i].length;j++) {
+                if(tableau[i][j]=='_'){
+                    isFull = false;
+                }
+            }
 
+        }
+        return isFull;
     }
 
     @Override

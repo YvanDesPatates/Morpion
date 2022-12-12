@@ -19,6 +19,7 @@ public class JoueurClient {
                 System.out.println(in.readUTF());
                 System.out.println("tapes la case à cocher sous la forme xy (sans espaces)");
                 out.writeUTF(scanner.nextLine());
+
             }
         } catch (IOException e){
             System.out.println("votre adversaire s'est déconnecté ! relancez une partie");

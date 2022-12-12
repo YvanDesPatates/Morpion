@@ -25,6 +25,7 @@ public class Joueur {
         output.writeUTF(message);
     }
 
+
     public char getSymbole() {
         return symbole;
     }
