@@ -1,3 +1,4 @@
+import java.io.IOException;
 
 public class GameSession extends Thread {
     private final Joueur player1;
@@ -27,10 +28,7 @@ public class GameSession extends Thread {
 
                 player1.writeMessage( prefix + plateau);
                 player2.writeMessage(prefix + plateau);
-                String rep = currentPlayer.readMessage();
-                int x = Integer.parseInt(String.valueOf(rep.charAt(0)));
-                int y = Integer.parseInt(String.valueOf(rep.charAt(1)));
-                plateau.takeCase(x, y, currentPlayer.getSymbole());
+                prendreCase(currentPlayer);
 
                 prefix = "\n";
                 if( currentPlayer == player1 )
@@ -44,6 +42,20 @@ public class GameSession extends Thread {
         }
         player1.close();
         player2.close();
+    }
+
+    private void prendreCase(Joueur currentPlayer) throws IOException {
+        boolean valeurOk = false;
+        while (!valeurOk) {
+            int x = Integer.parseInt(currentPlayer.readMessage());
+            int y = Integer.parseInt(currentPlayer.readMessage());
+            if(plateau.cellIsFree(x, y)) {
+                valeurOk = true;
+                currentPlayer.writeMessage("ok");
+                plateau.takeCase(x, y, currentPlayer.getSymbole());
+            } else
+                currentPlayer.writeMessage("erreur ! choisissez une case vide");
+        }
     }
 
 }

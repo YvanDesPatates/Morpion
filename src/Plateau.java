@@ -110,4 +110,7 @@ public class Plateau {
         return tableau;
     }
 
+    public boolean cellIsFree(int x, int y) {
+        return tableau[x-1][y-1] == '_';
+    }
 }

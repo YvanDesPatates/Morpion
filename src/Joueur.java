@@ -18,7 +18,6 @@ public class Joueur {
 
     public String readMessage() throws IOException {
         return input.readUTF();
-
     }
 
     public void writeMessage(String message) throws IOException {
