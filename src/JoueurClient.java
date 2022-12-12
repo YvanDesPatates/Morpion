@@ -12,14 +12,34 @@ public class JoueurClient {
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
 
-            for (int i = 0; i < 5; i++){
-                System.out.println(in.readUTF());
-                System.out.println(in.readUTF());
+            while (true){
+                if (! recevoirMessage(in))
+                    break;
+                if (! recevoirMessage(in))
+                    break;
                 envoyerValeur(out, in);
             }
         } catch (IOException e){
             System.out.println("votre adversaire s'est déconnecté ! relancez une partie");
         }
+    }
+
+    /**
+     * @return true if the game continue, false otherwise
+     */
+    private static boolean recevoirMessage(DataInputStream in) throws IOException {
+        String receivedMessage = in.readUTF();
+        switch (receivedMessage) {
+            case "win" -> System.out.println("bravo vous avez gagné !!!");
+            case "loose" -> System.out.println("dommage vous ferez mieux la prochaine fois !\n (j'espère)");
+            case "equality" -> System.out.println("personne n'as gagné, tout le monde est content (?)");
+            default -> {
+                System.out.println(receivedMessage);
+                return true;
+            }
+        }
+        System.out.println(in.readUTF());
+        return false;
     }
 
     private static void envoyerValeur(DataOutputStream out, DataInputStream in) throws IOException {

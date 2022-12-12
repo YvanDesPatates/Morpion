@@ -24,11 +24,23 @@ public class GameSession extends Thread {
 
             player1.writeMessage("");
             String prefix = "le jeux commence\n";
-            for (int i = 0; i < 5; i++) {
+            boolean jeuxEnCours = true;
+            while (jeuxEnCours){
 
                 player1.writeMessage( prefix + plateau);
                 player2.writeMessage(prefix + plateau);
                 prendreCase(currentPlayer);
+
+                if(plateau.isWinner(currentPlayer)){
+                    Joueur looser = currentPlayer == player1 ? player2 : player1;
+                    jeuxEnCours = false;
+                    currentPlayer.writeMessage("win");
+                    looser.writeMessage("loose");
+                } else if (plateau.isFull()){
+                    jeuxEnCours = false;
+                    player1.writeMessage("equality");
+                    player2.writeMessage("equality");
+                }
 
                 prefix = "\n";
                 if( currentPlayer == player1 )
