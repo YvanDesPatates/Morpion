@@ -1,12 +1,13 @@
+package serveur;
+
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.LinkedList;
 import java.util.Queue;
 
 
 public class Lobby {
-    private Queue<Joueur> joueurs;
-    private ServerSocket server;
+    private final Queue<Joueur> joueurs;
+    private final ServerSocket server;
 
     public Lobby(Queue<Joueur> joueurs, ServerSocket server) {
         this.joueurs = joueurs;
@@ -20,7 +21,7 @@ public class Lobby {
                 Joueur newPlayer = new Joueur(server.accept());
                 joueurs.add(newPlayer);
             } catch (IOException e){
-                System.err.println("erreur dans le morpion.src.Lobby lors de la connexion d'un client : "+e.getMessage());
+                System.err.println("erreur dans le morpion.src.serveur.Lobby lors de la connexion d'un client : "+e.getMessage());
             }
 
             if(joueurs.size() >= 2){

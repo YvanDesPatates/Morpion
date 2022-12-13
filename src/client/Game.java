@@ -1,33 +1,54 @@
+package client;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class JoueurClient {
-    public static void main(String[] args){
-        DataInputStream in;
-        DataOutputStream out;
-        try (Socket socket = new Socket("127.0.0.1", 1234)) {
-            in = new DataInputStream(socket.getInputStream());
-            out = new DataOutputStream(socket.getOutputStream());
+public class Game {
+    private final Socket socket;
+    private final DataInputStream in;
+    private final DataOutputStream out;
+    private  final Scanner scanner;
+    private int morpionSize;
 
-            while (true){
-                if (! recevoirMessage(in))
+    public Game(Socket socket) throws IOException {
+        this.socket = socket;
+        this.in = new DataInputStream(socket.getInputStream());
+        this.out = new DataOutputStream(socket.getOutputStream());
+        this.scanner = new Scanner(System.in);
+    }
+
+    public void endGame() throws IOException {
+        in.close();
+        out.close();
+        socket.close();
+        scanner.close();
+    }
+    public void play() throws IOException {
+        while (true){
+                if (recevoirMessage())
                     break;
-                if (! recevoirMessage(in))
+                if (recevoirMessage())
                     break;
-                envoyerValeur(out, in);
+                envoyerValeur();
             }
-        } catch (IOException e){
-            System.out.println("votre adversaire s'est déconnecté ! relancez une partie");
-        }
+    }
+
+    public void choisirTailleMorpion() throws IOException {
+        in.readUTF();
+        System.out.println("choisissez une taille de matrice entre 3 et 10");
+        out.writeUTF(entrerValeur(3, 10));
+        String x = in.readUTF();
+        System.out.println(in.readUTF());
+        morpionSize = Integer.parseInt(x);
     }
 
     /**
-     * @return true if the game continue, false otherwise
+     * @return true if the game has to stop, false if the game continue
      */
-    private static boolean recevoirMessage(DataInputStream in) throws IOException {
+    private boolean recevoirMessage() throws IOException {
         String receivedMessage = in.readUTF();
         String prefix = "\n\n\n\n\n\n\n\n";
         switch (receivedMessage) {
@@ -36,20 +57,20 @@ public class JoueurClient {
             case "equality" -> System.out.println(prefix+"personne n'as gagné, tout le monde est content (?)");
             default -> {
                 System.out.println(receivedMessage);
-                return true;
+                return false;
             }
         }
         System.out.println(in.readUTF());
-        return false;
+        return true;
     }
 
-    private static void envoyerValeur(DataOutputStream out, DataInputStream in) throws IOException {
+    private void envoyerValeur() throws IOException {
         boolean valeurOk = false;
         while (!valeurOk) {
-            System.out.println("entrez le numéro de COLONNE choisi (de 1 à 3)");
-            String x = entrerValeur();
-            System.out.println("entrez le numéro de LIGNE choisi (de 1 à 3)");
-            String y = entrerValeur();
+            System.out.println("entrez le numéro de COLONNE choisi (de 1 à "+morpionSize+")");
+            String x = entrerValeur(1, morpionSize);
+            System.out.println("entrez le numéro de LIGNE choisi (de 1 à "+morpionSize+")");
+            String y = entrerValeur(1, morpionSize);
             out.writeUTF(x);
             out.writeUTF(y);
             String validation = in.readUTF();
@@ -60,17 +81,16 @@ public class JoueurClient {
         }
     }
 
-    private static String entrerValeur() {
-        Scanner scanner = new Scanner(System.in);
+        private String entrerValeur(int min, int max) {
         String rep = scanner.nextLine();
         boolean valeurOk = false;
         while (!valeurOk) {
             if (isIntable(rep)) {
                 int x = Integer.parseInt(rep);
-                if (x >= 1 && x <= 4) {
+                if (x >= min && x <= max) {
                     valeurOk = true;
                 } else {
-                    System.out.println("Erreur, merci de choisir un valeur entre 1 et 3 :");
+                    System.out.println("Erreur, merci de choisir un valeur entre "+min+" et "+max+" :");
                     rep = scanner.nextLine();
                 }
             } else {

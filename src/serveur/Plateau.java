@@ -1,3 +1,4 @@
+package serveur;
 
 public class Plateau {
     /** square matrice of char */
@@ -6,8 +7,8 @@ public class Plateau {
     /**
      * créer et retourne un tableau initialisé
      */
-    public Plateau(){
-        tableau = Plateau.initialisation();
+    public Plateau(int taille){
+        tableau = Plateau.initialisation(taille);
     }
 
     /**
@@ -168,10 +169,10 @@ public class Plateau {
         return result.toString();
     }
 
-    public static char[][] initialisation() {
+    public static char[][] initialisation(int taille) {
         char[][] tableau;
         int i, j;
-        tableau = new char[4][4];
+        tableau = new char[taille][taille];
 
         //initialisation du plateau
         for (i = 0; i < tableau.length; i++) {

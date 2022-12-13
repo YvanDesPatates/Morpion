@@ -9,28 +9,28 @@
 ### Architecture
 <pre> voir le diagramme de classe ci-dessous pour une vue d'ensemble.</pre>
 <pre>
-La classe JoueurClient représente le programme coté client
+La classe client.Game représente le programme coté client
     Il faut l'installer sur l'ordinateur des joueurs afin qu'ils puissent le lancer.
     Elle se connecte au serveur et interprète les résultats envoyés.
 </pre>
 <pre>
-Le lobby est une salle d'attente qui lance des joueurs dans une partie (une GameSession)
+Le lobby est une salle d'attente qui lance des joueurs dans une partie (une serveur.GameSession)
     par groupe de deux dans un Thread A part.
 </pre>
 <pre>
-Une GameSession se termine lorsqu'un joueur à gagné ou que la grille (Plateau) est pleine.
-    Chaque GameSession hérite de la classe Thread et gère :
+Une serveur.GameSession se termine lorsqu'un joueur à gagné ou que la grille (serveur.Plateau) est pleine.
+    Chaque serveur.GameSession hérite de la classe Thread et gère :
         - le shéma de communiquation avec les applications clientes
         - la transmission d'information (victoire, grilles) aux joueurs
 </pre>
 <pre>
-La classe Joueur se construit autours d'une socket 
+La classe serveur.Joueur se construit autours d'une socket 
     pour faciliter les communications au travers des pipes.
 </pre>
 <pre>
-La classe Plateau contient l'aspect métier : 
+La classe serveur.Plateau contient l'aspect métier : 
     - conditions de victoire
     - gestion de la grille de morpion
     - affichage de la grille de morpion
 </pre>
-<img src="./diagramme de classe.jpg">
+<img src="./diagramme de classe.jpg" alt="diagramme de classe">
