@@ -23,6 +23,7 @@ public class GameSession extends Thread {
 
         Joueur currentPlayer = player1;
         try {
+            choisirPseudo();
 
             choisirTailleMatrice();
 
@@ -51,7 +52,7 @@ public class GameSession extends Thread {
             System.err.println("erreur lors d'envois de message : " + e.getMessage());
         }
         try {
-            sleep(5000);
+            sleep(500);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -60,7 +61,8 @@ public class GameSession extends Thread {
     }
 
     private void choisirTailleMatrice() throws IOException {
-        writeToBothPlayers("choice");
+        player1.writeMessage(player2.getPseudo());
+        player2.writeMessage(player1.getPseudo());
         int x1 = Integer.parseInt(player1.readMessage());
         int x2 = Integer.parseInt(player2.readMessage());
         int x;
@@ -71,9 +73,14 @@ public class GameSession extends Thread {
         } else {
             x = (x1+x2)/2;
             writeToBothPlayers(String.valueOf(x));
-            writeToBothPlayers("vous n'êtes pas d'accords avec votre adversaire !\nla moyenne 'approximative vous donne donc une grille de "+x+"x"+x);
+            writeToBothPlayers("vous n'êtes pas d'accords avec votre adversaire !\nla moyenne (approximative) vous donne donc une grille de "+x+"x"+x);
         }
         plateau = new Plateau(x);
+    }
+
+    public void choisirPseudo() throws IOException {
+        player1.setPseudo(player1.readMessage());
+        player2.setPseudo(player2.readMessage());
     }
 
     /**

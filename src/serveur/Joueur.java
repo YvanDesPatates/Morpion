@@ -9,7 +9,7 @@ public class Joueur {
     private final Socket socket;
     private final DataInputStream input;
     private final DataOutputStream output;
-
+    private String pseudo;
     private char symbole;
 
     public Joueur(Socket client) throws IOException {
@@ -26,6 +26,13 @@ public class Joueur {
         output.writeUTF(message);
     }
 
+    public void close(){
+        try {
+            socket.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public char getSymbole() {
         return symbole;
@@ -35,11 +42,11 @@ public class Joueur {
         this.symbole = symbole;
     }
 
-    public void close(){
-        try {
-            socket.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public String getPseudo() {
+        return pseudo;
+    }
+
+    public void setPseudo(String pseudo) {
+        this.pseudo = pseudo;
     }
 }

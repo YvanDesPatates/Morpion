@@ -12,6 +12,7 @@ public class Game {
     private final DataOutputStream out;
     private  final Scanner scanner;
     private int morpionSize;
+    private String pseudo;
 
     public Game(Socket socket) throws IOException {
         this.socket = socket;
@@ -36,9 +37,17 @@ public class Game {
             }
     }
 
+    public void choisirPseudo() throws IOException {
+        System.out.println("tapez votre pseudo : ");
+        this.pseudo = scanner.nextLine();
+        out.writeUTF(pseudo);
+        System.out.println("Bienvenu "+pseudo+". Un deuxième joueur va bientôt se connecter !");
+    }
+
     public void choisirTailleMorpion() throws IOException {
-        in.readUTF();
-        System.out.println("choisissez une taille de matrice entre 3 et 10");
+        String pseudoAdverse = in.readUTF();
+        System.out.println("adversaire trouvé, vous jouez contre "+pseudoAdverse);
+        System.out.println("\n\nchoisissez une taille de matrice entre 3 et 10");
         out.writeUTF(entrerValeur(3, 10));
         String x = in.readUTF();
         System.out.println(in.readUTF());

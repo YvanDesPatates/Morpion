@@ -21,7 +21,7 @@ public class Lobby {
                 Joueur newPlayer = new Joueur(server.accept());
                 joueurs.add(newPlayer);
             } catch (IOException e){
-                System.err.println("erreur dans le morpion.src.serveur.Lobby lors de la connexion d'un client : "+e.getMessage());
+                System.err.println("erreur dans le lobby lors de la connexion d'un client : "+e.getMessage());
             }
 
             if(joueurs.size() >= 2){

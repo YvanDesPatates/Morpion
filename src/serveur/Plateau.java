@@ -154,17 +154,23 @@ public class Plateau {
 
     @Override
     public String toString() {
-        int i, j;
-        StringBuilder result = new StringBuilder();
+        StringBuilder result = new StringBuilder("    ");
 
-        for (i = 0;i < tableau.length; i++) {
-            for (j = 0;j < tableau[i].length;j++) {
+        for (int i = 0; i < tableau.length; i++) {
+            result.append((i+1)).append(" ");
+        }
+
+        result.append("\n").append("1 | ");
+
+        for (int i = 0;i < tableau.length; i++) {
+            for (int j = 0;j < tableau[i].length;j++) {
                 result.append(tableau[i][j]);
                 result.append(" ");
             }
-            result.append("\n");
+            if(i != tableau.length-1)
+                result.append("\n").append(i+2).append(" | ");
         }
-        result.append("\n");
+        result.append("\n\n");
 
         return result.toString();
     }
