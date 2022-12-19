@@ -1,15 +1,26 @@
 package serveur;
 
+import serveur.clients.Client;
+import serveur.clients.Joueur;
+
 import java.io.IOException;
+import java.util.Collection;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class GameSession extends Thread {
     private final Joueur player1;
     private final Joueur player2;
     private Plateau plateau;
+    protected Collection<Client> viewers;
+    private final String key;
+    Lobby lobby;
 
-    public GameSession(Joueur player1, Joueur player2) {
+    public GameSession(Joueur player1, Joueur player2, String key, Lobby lobby) {
         this.player1 = player1;
         this.player2 = player2;
+        this.viewers = new ConcurrentLinkedQueue<>();
+        this.key = key;
+        this.lobby = lobby;
         setDaemon(true);
     }
 
@@ -34,6 +45,8 @@ public class GameSession extends Thread {
 
                 player1.writeMessage( prefix + plateau);
                 player2.writeMessage(prefix + plateau);
+                writeToViewers(prefix + plateau + "\n" + "c'est à " + currentPlayer.getPseudo() + " de jouer");
+
                 prendreCase(currentPlayer);
 
                 jeuxEnCours = noWinnerNorEquality(currentPlayer);
@@ -50,6 +63,8 @@ public class GameSession extends Thread {
 
         } catch (Exception e) {
             System.err.println("erreur lors d'envois de message : " + e.getMessage());
+            writeToViewers("un joueur s'est déconnecté, la partie s'arrête ici :(");
+            writeToViewers("stop");
         }
         try {
             sleep(500);
@@ -58,11 +73,13 @@ public class GameSession extends Thread {
         }
         player1.close();
         player2.close();
+        lobby.finishedGame(key, this);
     }
 
     private void choisirTailleMatrice() throws IOException {
         player1.writeMessage(player2.getPseudo());
         player2.writeMessage(player1.getPseudo());
+        writeToBothPlayers(key);
         int x1 = Integer.parseInt(player1.readMessage());
         int x2 = Integer.parseInt(player2.readMessage());
         int x;
@@ -94,9 +111,15 @@ public class GameSession extends Thread {
             res = false;
             currentPlayer.writeMessage("win");
             looser.writeMessage("loose");
+            writeToViewers("win");
+            writeToViewers("fin ! La partie à été remportée par " + currentPlayer.getPseudo());
+            writeToViewers("dommage pour " + looser.getPseudo());
+            writeToViewers("stop");
         } else if (plateau.isFull()){
             res = false;
             writeToBothPlayers("equality");
+            writeToViewers("fin de la partie, personne n'as gagné !");
+            writeToViewers("stop");
         }
         return res;
     }
@@ -119,5 +142,10 @@ public class GameSession extends Thread {
         player1.writeMessage(message);
         player2.writeMessage(message);
     }
+
+    private void writeToViewers(String message) {
+        viewers.removeIf( viewer -> ! viewer.writeMessageCheckSuccess(message));
+    }
+
 
 }

@@ -24,7 +24,7 @@ Une serveur.GameSession se termine lorsqu'un joueur à gagné ou que la grille (
         - la transmission d'information (victoire, grilles) aux joueurs
 </pre>
 <pre>
-La classe serveur.Joueur se construit autours d'une socket 
+La classe serveur.clients.Joueur se construit autours d'une socket 
     pour faciliter les communications au travers des pipes.
 </pre>
 <pre>

@@ -21,6 +21,27 @@ public class Game {
         this.scanner = new Scanner(System.in);
     }
 
+    public void playOrWatch() throws IOException {
+        //send 1 to play and 2 to watch
+        in.readUTF();
+        System.out.println("tapez 1 pour jouer, 2 pour regarder une partie");
+        String rep = entrerValeur(1, 2);
+        out.writeUTF(rep);
+        if (rep.equals("1")) {
+            choisirPseudo();
+            choisirTailleMorpion();
+        }
+        else if (rep.equals("2")) {
+            in.readUTF();
+            System.out.println("tapez la clef de la partie que vous voulez regarder\n" +
+                    "cette clef à été communiqué aux joueurs au début de la partie");
+            out.writeUTF(scanner.nextLine());
+            watch();
+        }else
+            System.out.println("erreur lors de la prise en compte du choix, veuillez relancer le programme");
+
+    }
+
     public void endGame() throws IOException {
         in.close();
         out.close();
@@ -36,8 +57,16 @@ public class Game {
                 envoyerValeur();
             }
     }
+    public void watch() throws IOException {
+        String receivedMessage = in.readUTF();
+        while (! receivedMessage.equals("stop")){
+            System.out.println(receivedMessage);
+            receivedMessage = in.readUTF();
+        }
+    }
 
     public void choisirPseudo() throws IOException {
+        // pour dire au serveur qu'on veut être un joueur
         System.out.println("tapez votre pseudo : ");
         this.pseudo = scanner.nextLine();
         out.writeUTF(pseudo);
@@ -46,12 +75,15 @@ public class Game {
 
     public void choisirTailleMorpion() throws IOException {
         String pseudoAdverse = in.readUTF();
+        String gameCode = in.readUTF();
         System.out.println("adversaire trouvé, vous jouez contre "+pseudoAdverse);
+        System.out.println("Si vous voulez des spectateurs, le code de votre partie est : " + gameCode);
         System.out.println("\n\nchoisissez une taille de matrice entre 3 et 10");
         out.writeUTF(entrerValeur(3, 10));
         String x = in.readUTF();
         System.out.println(in.readUTF());
         morpionSize = Integer.parseInt(x);
+        play();
     }
 
     /**
@@ -119,4 +151,5 @@ public class Game {
         }
         return true;
     }
+
 }

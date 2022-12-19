@@ -1,18 +1,16 @@
-package serveur;
+package serveur.clients;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class Joueur {
+public class Client {
     private final Socket socket;
     private final DataInputStream input;
     private final DataOutputStream output;
-    private String pseudo;
-    private char symbole;
 
-    public Joueur(Socket client) throws IOException {
+    public Client(Socket client) throws IOException {
         socket = client;
         input = new DataInputStream(client.getInputStream());
         output = new DataOutputStream(client.getOutputStream());
@@ -26,7 +24,16 @@ public class Joueur {
         output.writeUTF(message);
     }
 
-    public void close(){
+    public boolean writeMessageCheckSuccess(String message){
+        try {
+            output.writeUTF(message);
+            return true;
+        } catch (Exception e){
+            return false;
+        }
+    }
+
+    public void close() {
         try {
             socket.close();
         } catch (IOException e) {
@@ -34,19 +41,7 @@ public class Joueur {
         }
     }
 
-    public char getSymbole() {
-        return symbole;
-    }
-
-    public void setSymbole(char symbole) {
-        this.symbole = symbole;
-    }
-
-    public String getPseudo() {
-        return pseudo;
-    }
-
-    public void setPseudo(String pseudo) {
-        this.pseudo = pseudo;
+    protected Socket getSocket(){
+        return socket;
     }
 }

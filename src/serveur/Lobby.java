@@ -1,37 +1,53 @@
 package serveur;
 
-import java.io.IOException;
-import java.net.ServerSocket;
+import serveur.clients.Client;
+import serveur.clients.Joueur;
+
+import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import org.apache.commons.lang3.RandomStringUtils;
 
 
 public class Lobby {
     private final Queue<Joueur> joueurs;
-    private final ServerSocket server;
+    private final Map<String, GameSession> games;
 
-    public Lobby(Queue<Joueur> joueurs, ServerSocket server) {
-        this.joueurs = joueurs;
-        this.server = server;
+    public Lobby() {
+        this.joueurs = new ConcurrentLinkedQueue<>();
+        this.games = new ConcurrentHashMap<>();
     }
 
-    public void launchLobby() {
 
-        while(true){
-            try {
-                Joueur newPlayer = new Joueur(server.accept());
-                joueurs.add(newPlayer);
-            } catch (IOException e){
-                System.err.println("erreur dans le lobby lors de la connexion d'un client : "+e.getMessage());
-            }
-
-            if(joueurs.size() >= 2){
-                new GameSession(joueurs.poll(), joueurs.poll()).start();
-                System.out.println();
-            } else {
-                System.out.println("un client attends");
-            }
-
+    public void newPlayer(Joueur newJoueur) {
+        joueurs.add(newJoueur);
+        if(joueurs.size() >= 2){
+            String key = generateNewKey();
+            GameSession gameSession = new GameSession(joueurs.poll(), joueurs.poll(), key, this);
+            games.put(key, gameSession);
+            gameSession.start();
+            System.out.println("une partie est lancée");
+        } else {
+            System.out.println("un client attends");
         }
     }
 
+    private String generateNewKey() {
+        return RandomStringUtils.randomAlphanumeric(4);
+    }
+
+    public boolean newViewer(Client client, String codeGame) {
+        try {
+            games.get(codeGame).viewers.add(client);
+            client.writeMessage("la partie est en cours et vous pourez la suivre dès que le prochain coup sera joué");
+            return true;
+        } catch (Exception e){
+            return false;
+        }
+    }
+
+    public void finishedGame(String code, GameSession finishedGame){
+        games.remove(code, finishedGame);
+    }
 }

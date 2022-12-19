@@ -1,5 +1,7 @@
 package serveur;
 
+import serveur.clients.Joueur;
+
 public class Plateau {
     /** square matrice of char */
     private final char[][] tableau;
