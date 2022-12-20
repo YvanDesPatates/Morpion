@@ -1,0 +1,62 @@
+@startuml
+abstract class Thread{
+run
+}
+
+class Serveur{
+server : ServerSocket
+launchServeur()
+}
+
+class Lobby{
+joueurs: Queue<Joueur>
+games: Map<String, Games>
+newPlayer(Joueur)
+newViewer(Client, String code)
+}
+
+class LobbyOptions{
+run()
+}
+
+class GameSession{
+player1: Joueur
+player2: Joueur
+plateau: Plateau
+viewers: Collection<Client>
+run()
+}
+
+class Plateau{
+tableau : char[][]
+isWinner(Joueur) : boolean
+isFull() : boolean
+cellIsFree() : boolean
+toString()
+takeCase
+}
+
+class Client{
+readMessage(): String
+writeMessage(String)
+close()
+}
+
+class Joueur{
+pseudo: String
+symbole: char
+}
+
+MainServer -> Serveur : launch
+Serveur -> LobbyOptions : newClient
+LobbyOptions -> Lobby : newPlayerOrViewer
+Lobby -> GameSession : run
+GameSession -down-> Client : joueurs+Viewers
+GameSession -up-> Plateau
+
+Thread <|-down- LobbyOptions
+Thread <|- GameSession
+Client <|-down- Joueur
+
+
+@enduml
