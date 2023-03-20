@@ -12,7 +12,7 @@ public class Joueur extends Client {
     }
 
     public Joueur(Client client) throws IOException {
-        super(client.getSocket());
+        super(client);
     }
 
     public char getSymbole() {

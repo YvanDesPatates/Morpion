@@ -18,6 +18,7 @@ public class LobbyOptions extends Thread{
     public void run() {
         super.run();
         try {
+            lobby.startSecurityExchange(client);
             client.writeMessage("choix");
             int choix = Integer.parseInt(client.readMessage());
             if (choix == 1)
@@ -31,7 +32,7 @@ public class LobbyOptions extends Thread{
                 }
             }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

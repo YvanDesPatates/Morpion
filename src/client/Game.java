@@ -1,18 +1,30 @@
 package client;
 
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Scanner;
 
 public class Game {
+    private final static String finMessage = "finDuMessage";
+    private final Queue<String> bufferPerso = new LinkedList<>();
     private final Socket socket;
     private final DataInputStream in;
     private final DataOutputStream out;
     private  final Scanner scanner;
     private int morpionSize;
     private String pseudo;
+    private Cipher cipherDecode;
+    private Cipher cipherEncode;
 
     public Game(Socket socket) throws IOException {
         this.socket = socket;
@@ -21,21 +33,21 @@ public class Game {
         this.scanner = new Scanner(System.in);
     }
 
-    public void playOrWatch() throws IOException {
+    public void playOrWatch() throws Exception {
         //send 1 to play and 2 to watch
-        in.readUTF();
+        read();
         System.out.println("tapez 1 pour jouer, 2 pour regarder une partie");
         String rep = entrerValeur(1, 2);
-        out.writeUTF(rep);
+        write(rep);
         if (rep.equals("1")) {
             choisirPseudo();
             choisirTailleMorpion();
         }
         else if (rep.equals("2")) {
-            in.readUTF();
+            read();
             System.out.println("tapez la clef de la partie que vous voulez regarder\n" +
                     "cette clef à été communiqué aux joueurs au début de la partie");
-            out.writeUTF(scanner.nextLine());
+            write(scanner.nextLine());
             watch();
         }else
             System.out.println("erreur lors de la prise en compte du choix, veuillez relancer le programme");
@@ -48,7 +60,7 @@ public class Game {
         socket.close();
         scanner.close();
     }
-    public void play() throws IOException {
+    public void play() throws Exception {
         while (true){
                 if (recevoirMessage())
                     break;
@@ -57,31 +69,31 @@ public class Game {
                 envoyerValeur();
             }
     }
-    public void watch() throws IOException {
-        String receivedMessage = in.readUTF();
+    public void watch() throws Exception {
+        String receivedMessage = read();
         while (! receivedMessage.equals("stop")){
             System.out.println(receivedMessage);
-            receivedMessage = in.readUTF();
+            receivedMessage = read();
         }
     }
 
-    public void choisirPseudo() throws IOException {
+    public void choisirPseudo() throws Exception {
         // pour dire au serveur qu'on veut être un joueur
         System.out.println("tapez votre pseudo : ");
         this.pseudo = scanner.nextLine();
-        out.writeUTF(pseudo);
+        write(pseudo);
         System.out.println("Bienvenu "+pseudo+". Un deuxième joueur va bientôt se connecter !");
     }
 
-    public void choisirTailleMorpion() throws IOException {
-        String pseudoAdverse = in.readUTF();
-        String gameCode = in.readUTF();
+    public void choisirTailleMorpion() throws Exception {
+        String pseudoAdverse = read();
+        String gameCode = read();
         System.out.println("adversaire trouvé, vous jouez contre "+pseudoAdverse);
         System.out.println("Si vous voulez des spectateurs, le code de votre partie est : " + gameCode);
         System.out.println("\n\nchoisissez une taille de matrice entre 3 et 10");
-        out.writeUTF(entrerValeur(3, 10));
-        String x = in.readUTF();
-        System.out.println(in.readUTF());
+        write(entrerValeur(3, 10));
+        String x = read();
+        System.out.println(read());
         morpionSize = Integer.parseInt(x);
         play();
     }
@@ -89,32 +101,35 @@ public class Game {
     /**
      * @return true if the game has to stop, false if the game continue
      */
-    private boolean recevoirMessage() throws IOException {
-        String receivedMessage = in.readUTF();
+    private boolean recevoirMessage() throws Exception {
+        String receivedMessage = read();
         String prefix = "\n\n\n\n\n\n\n\n";
-        switch (receivedMessage) {
-            case "win" -> System.out.println(prefix+"bravo vous avez gagné !!!");
-            case "loose" -> System.out.println(prefix+"dommage vous ferez mieux la prochaine fois !\n (j'espère)");
-            case "equality" -> System.out.println(prefix+"personne n'as gagné, tout le monde est content (?)");
-            default -> {
-                System.out.println(receivedMessage);
-                return false;
-            }
+
+        if ("win".equals(receivedMessage)) {
+            System.out.println(prefix + "bravo vous avez gagné !!!");
+        } else if ("loose".equals(receivedMessage)) {
+            System.out.println(prefix + "dommage vous ferez mieux la prochaine fois !\n (j'espère)");
+        } else if ("equality".equals(receivedMessage)) {
+            System.out.println(prefix + "personne n'as gagné, tout le monde est content (?)");
+        } else {
+            System.out.println(receivedMessage);
+            return false;
         }
-        System.out.println(in.readUTF());
+
+        System.out.println(read());
         return true;
     }
 
-    private void envoyerValeur() throws IOException {
+    private void envoyerValeur() throws Exception {
         boolean valeurOk = false;
         while (!valeurOk) {
             System.out.println("entrez le numéro de COLONNE choisi (de 1 à "+morpionSize+")");
             String x = entrerValeur(1, morpionSize);
             System.out.println("entrez le numéro de LIGNE choisi (de 1 à "+morpionSize+")");
             String y = entrerValeur(1, morpionSize);
-            out.writeUTF(x);
-            out.writeUTF(y);
-            String validation = in.readUTF();
+            write(x);
+            write(y);
+            String validation = read();
             if (validation.equals("ok"))
                 valeurOk = true;
             else
@@ -152,4 +167,49 @@ public class Game {
         return true;
     }
 
+    private String read() throws Exception {
+        if (bufferPerso.isEmpty()) {
+            byte[] messageEncode = new byte[1000];
+            int length = in.read(messageEncode);
+            byte[] messageDecode = cipherDecode.doFinal(messageEncode, 0, length);
+            String[] messages = new String(messageDecode).split(finMessage);
+            if (messages.length > 1){
+                for (int i = 1; i < messages.length; i++) {
+                    bufferPerso.add(messages[i]);
+                }
+            }
+            return messages[0];
+        } else {
+            return bufferPerso.poll();
+        }
+    }
+
+    private void write(String message) throws Exception {
+        String finalMessage = message+finMessage;
+        byte[] messageClair = finalMessage.getBytes();
+        byte[] messageCrypte = cipherEncode.doFinal(messageClair);
+        out.write(messageCrypte);
+    }
+
+    public void startSecurityExchange() throws Exception{
+        byte[] key = in.readNBytes(94);
+        PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(key));
+
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("DES");
+        keyGenerator.init(56);
+        SecretKey secretKey = keyGenerator.generateKey();
+
+        cipherEncode = Cipher.getInstance("RSA");
+        cipherEncode.init(Cipher.ENCRYPT_MODE, publicKey);
+        byte[] clefDESEncode = cipherEncode.doFinal(secretKey.getEncoded());
+        out.write(clefDESEncode);
+
+        cipherEncode = Cipher.getInstance("DES");
+        cipherEncode.init(Cipher.ENCRYPT_MODE, secretKey);
+
+        cipherDecode = Cipher.getInstance("DES");
+        cipherDecode.init(Cipher.DECRYPT_MODE, secretKey);
+
+        System.out.println("connexion sécurisée ok");
+    }
 }

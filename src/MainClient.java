@@ -8,8 +8,13 @@ public class MainClient {
         try (Socket socket = new Socket("127.0.0.1", 1234)) {
             Game game = new Game(socket);
             try {
+                game.startSecurityExchange();
+            } catch (Exception e){
+                System.out.println("erreur lors de la sécurisation de la connexion au serveur");
+            }
+            try {
                 game.playOrWatch();
-            } catch (IOException e){
+            } catch (Exception e){
                 System.out.println("un joueur s'est déconnecté !\n   lancez une autre partie :)");
                 game.endGame();
             }

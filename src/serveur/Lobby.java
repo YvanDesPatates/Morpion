@@ -3,6 +3,9 @@ package serveur;
 import serveur.clients.Client;
 import serveur.clients.Joueur;
 
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,10 +16,14 @@ import org.apache.commons.lang3.RandomStringUtils;
 public class Lobby {
     private final Queue<Joueur> joueurs;
     private final Map<String, GameSession> games;
+    private KeyPair keyPair;
 
-    public Lobby() {
+    public Lobby() throws NoSuchAlgorithmException {
         this.joueurs = new ConcurrentLinkedQueue<>();
         this.games = new ConcurrentHashMap<>();
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(512);
+        keyPair = keyPairGenerator.generateKeyPair();
     }
 
 
@@ -49,5 +56,9 @@ public class Lobby {
 
     public void finishedGame(String code, GameSession finishedGame){
         games.remove(code, finishedGame);
+    }
+
+    public void startSecurityExchange(Client client) throws Exception{
+        client.startSecurityKeyExchange(keyPair);
     }
 }

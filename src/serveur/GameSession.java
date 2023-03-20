@@ -3,7 +3,6 @@ package serveur;
 import serveur.clients.Client;
 import serveur.clients.Joueur;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -38,7 +37,7 @@ public class GameSession extends Thread {
 
             choisirTailleMatrice();
 
-            player1.writeMessage("");
+            player1.writeMessage(".");
             String prefix = "le jeux commence\n";
             boolean jeuxEnCours = true;
             while (jeuxEnCours){
@@ -76,10 +75,11 @@ public class GameSession extends Thread {
         lobby.finishedGame(key, this);
     }
 
-    private void choisirTailleMatrice() throws IOException {
+    private void choisirTailleMatrice() throws Exception {
         player1.writeMessage(player2.getPseudo());
         player2.writeMessage(player1.getPseudo());
         writeToBothPlayers(key);
+//        le problème est ici, on envoies 2 messages et ça va trop vite pour le client qui li les deux messages comme un seul.
         int x1 = Integer.parseInt(player1.readMessage());
         int x2 = Integer.parseInt(player2.readMessage());
         int x;
@@ -95,7 +95,7 @@ public class GameSession extends Thread {
         plateau = new Plateau(x);
     }
 
-    public void choisirPseudo() throws IOException {
+    public void choisirPseudo() throws Exception {
         player1.setPseudo(player1.readMessage());
         player2.setPseudo(player2.readMessage());
     }
@@ -104,7 +104,7 @@ public class GameSession extends Thread {
      * @param currentPlayer the last plays which has play
      * @return true if there is no winner and the serveur.Plateau is not full yet
      */
-    private boolean noWinnerNorEquality(Joueur currentPlayer) throws IOException {
+    private boolean noWinnerNorEquality(Joueur currentPlayer) throws Exception {
         boolean res = true;
         if(plateau.isWinner(currentPlayer)){
             Joueur looser = currentPlayer == player1 ? player2 : player1;
@@ -124,7 +124,7 @@ public class GameSession extends Thread {
         return res;
     }
 
-    private void prendreCase(Joueur currentPlayer) throws IOException {
+    private void prendreCase(Joueur currentPlayer) throws Exception {
         boolean valeurOk = false;
         while (!valeurOk) {
             int x = Integer.parseInt(currentPlayer.readMessage());
@@ -138,7 +138,7 @@ public class GameSession extends Thread {
         }
     }
 
-    private void writeToBothPlayers(String message) throws IOException {
+    private void writeToBothPlayers(String message) throws Exception {
         player1.writeMessage(message);
         player2.writeMessage(message);
     }
