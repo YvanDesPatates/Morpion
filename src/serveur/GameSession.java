@@ -79,7 +79,6 @@ public class GameSession extends Thread {
         player1.writeMessage(player2.getPseudo());
         player2.writeMessage(player1.getPseudo());
         writeToBothPlayers(key);
-//        le problème est ici, on envoies 2 messages et ça va trop vite pour le client qui li les deux messages comme un seul.
         int x1 = Integer.parseInt(player1.readMessage());
         int x2 = Integer.parseInt(player2.readMessage());
         int x;
