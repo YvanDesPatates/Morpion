@@ -1,47 +1,74 @@
 
 # Projet Morpion
-### Présentation générale :
+### Fonctionnalitée :
+- permet deux faire des parties de morpions à un contre un
+- peut gérer des centaines d'utilisateurs en même temps (enfin probablement)
+- gères les erreurs d'entrées utilisateurs
+- gères les cas de déconnexions de l'adversaire
+- **Nouveau ! vous pouvez maintenant choisir la taille de la grille sur laquelle vous voulez jouer**
+- **Nouveau ! vous pouvez maintenant assister à une partie en tant que spectateur**
+
+### Sécurisation
+Un système d'encryptage des données a été mis en place, pour plus d'information voir le [readme spécial sécurité](./readme_security.md)
+### Architecture
+voir le diagramme de classe ci-dessous pour une vue d'ensemble.
+###### Game (client)
 <pre>
-Ce readme est dédié à la partie sécurité !
-Pour un aperçu des fonctionnalités et de l'architecture employé, <a href="./readme_structure_application.md">voir ce readme-ci</a>
+La classe client.Game représente le programme coté client
+    Il faut l'installer, ainsi que la classe MainClient, sur l'ordinateur des joueurs afin qu'ils puissent le lancer.
+    Elle se connecte au serveur et interprète les résultats envoyés.
+</pre>
+###### MainServer
+<pre>
+La classe MainServer, porte d'entrée de l'application serveur, lance la classe Serveur.
+</pre>
+###### Serveur
+<pre>
+La class Serveur est une boucle perpétuelle qui attends que des clients se connecte.
+    Pour chaque connexion, le Serveur lance un Thread sous la forme d'une instance de la classe de LobbyOptions
+</pre>
+###### LobbyOptions
+<pre>
+Chaque instance de la classe LobbyOptions se lance dans un thread à part dès lors qu'on exécute la méthode start().
+    Chaque instance de la classe LobbyOptions permet à un nouveau client de s'orienter, 
+            soit vers une nouvelle partie soit vers une partie à laquelle assister.
+    Lorsque le choix est fait, LobbyOption donne l'information au Lobby
+</pre>
+###### Lobby
+<pre>
+Le lobby est une salle d'attente qui lance des joueurs dans une partie (une serveur.GameSession) 
+            par groupe de deux dans un Thread A part.
+    C'est via la gestion de ces collections de GameSession en cours (attribut games) 
+            que le Lobby peut inscrire un nouveau client en temps que viewer d'une partie.
+</pre>
+###### GameSession
+<pre>
+Une serveur.GameSession se termine lorsqu'un joueur à gagné ou que la grille (serveur.Plateau) est pleine.
+    Chaque serveur.GameSession hérite de la classe Thread et gère :
+        - le schéma de communication avec les applications clientes
+        - la transmission d'information (victoire, grilles) aux joueurs
+</pre>
+###### Client
+<pre>
+La classe serveur.clients.Client se construit autours d'une socket 
+    pour faciliter les communications au travers des pipes.
+</pre>
+###### Joueur
+<pre>
+La classe serveur.clients.Joueur hérite de la classe Client, 
+            elle ajoute des attributs de joueurs tel qu'un pseudo et un symbole ('X' ou 'O')
+</pre>
+###### Plateau
+<pre>
+La classe serveur.Plateau contient l'aspect métier : 
+    - conditions de victoire quelle que soit la taille de la grille
+    - gestion de la grille de morpion
+    - affichage de la grille de morpion
 </pre>
 
-### Méthode de sécurisation des messages :
-<pre>
-La sécurisation des données se fait grâce à des échanges de clefs DES encryptés sous RSA :
-- Le serveur, à son instanciation, créer un paire de clef RSA
-- A chaque nouvelle connexion, le serveur envoies sa clef RSA publique au client
-- Le client génère sa clef privé DES, et l'envoie au serveur après l'avoir encrypté avec le clef RSA publique
-- Le serveur décrypte la clef DES grâce à sa clef RSA rivé
-- les deux entités partagent maintenant la même clef DES privé et peuvent communiquer en toute sécurité
-</pre>
+### Légère précision
+<pre>Bien que l'architecture soit capable de gérer toutes les tailles de grilles >= 3x3,
+    nous avons restreint ce choix à un maximum de 10x10 pour garder une certaine cohérence.</pre>
 
-### Avantages de cette méthode :
-<pre>
-- L'utilisation de la clef RSA permet de s'assurer qu'as aucun moment on ne peut intercepter des données,
-    et ainsi garantir une sécurité très forte
-- L'utilisation du DES permet de gagner en rapidité de lecture et écriture face à une utilisation unique du RSA
-</pre>
-
---------------------------------------------------------------------------------
-
-### Difficultés rencontrées :
-##### Conversion des types :
-<pre>
-L'ancienne version envoyais directement des String d'une socket à l'autre.
-Cependant l'encryptage et le décryptage des données se font par des tableaux de bytes.
-Des problèmes de conversion m'ont vite fait comprendre qu'il valait mieux envoyer directement des bytes,
-    et les convertir uniquement pour l'affichage et le traitement.
-</pre>
-
-##### Synchronisation des lectures / écritures :
-<pre>
-Cette nouvelle méthode de communication présente un défaut :
-    Lorsque le serveur envoies deux messages d'affilés, le client à tendance à lire les deux messages en un seul read().
-
-Cela pose des problèmes de synchronisation client / serveur.
-
-Pour résoudre cela j'ai dût normer mon système de communication avec un signal pour signifier la fin d'un message.
-De plus j'ai créer mon propre "buffer tampon" qui capture les messages lorsqu'un seul read() en lit plusieurs,
-    et les redistribues au prochain read().
-</pre>
+### Diagramme de classe en mode esquisse de la partie serveur de l'application
+<img src="./diagramme de classe Serveur.png" alt="diagramme de classe">
